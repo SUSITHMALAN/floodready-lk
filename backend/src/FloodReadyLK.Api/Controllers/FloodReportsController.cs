@@ -23,6 +23,22 @@ public sealed class FloodReportsController(
         return Ok(reports);
     }
 
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
+    {
+        var report = await reportService.GetByIdAsync(id, cancellationToken);
+        return report is null ? NotFound() : Ok(report);
+    }
+
+    [HttpGet("me")]
+    [Authorize]
+    public async Task<IActionResult> GetMyReports(CancellationToken cancellationToken)
+    {
+        var userId = User.GetUserId();
+        var reports = await reportService.GetByUserIdAsync(userId, cancellationToken);
+        return Ok(reports);
+    }
+
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> Create(
@@ -38,6 +54,15 @@ public sealed class FloodReportsController(
 
         var userId = User.GetUserId();
         var created = await reportService.CreateAsync(userId, request, cancellationToken);
-        return CreatedAtAction(nameof(GetAll), new { }, created);
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+    }
+
+    [HttpDelete("{id:guid}")]
+    [Authorize]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    {
+        var userId = User.GetUserId();
+        var deleted = await reportService.DeleteAsync(id, userId, cancellationToken);
+        return deleted ? NoContent() : NotFound();
     }
 }

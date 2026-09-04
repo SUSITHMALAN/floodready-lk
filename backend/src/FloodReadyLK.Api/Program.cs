@@ -1,3 +1,4 @@
+using FloodReadyLK.Api.Middleware;
 using FloodReadyLK.Application.Services;
 using FloodReadyLK.Application.Validators;
 using FloodReadyLK.Domain.Interfaces;
@@ -10,55 +11,69 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- Database (Supabase Postgres via EF Core / Npgsql) ---
-var connectionString = builder.Configuration.GetConnectionString("SupabaseDb")
-    ?? throw new InvalidOperationException("Missing ConnectionStrings:SupabaseDb in appsettings.json.");
+// --- Database Configuration (PostgreSQL / Supabase with InMemory Fallback) ---
+var connectionString = builder.Configuration.GetConnectionString("SupabaseDb");
+bool isPlaceholderDb = string.IsNullOrWhiteSpace(connectionString) || connectionString.Contains("YOUR_PROJECT_REF");
 
-builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    if (isPlaceholderDb)
+    {
+        options.UseInMemoryDatabase("FloodReadyLK_InMemoryDb");
+    }
+    else
+    {
+        options.UseNpgsql(connectionString);
+    }
+});
 
-// --- Repositories (DAOs) — implement Member 1's Domain interfaces ---
+// --- Repositories & Application Services ---
 builder.Services.AddScoped<IDistrictRepository, DistrictRepository>();
 builder.Services.AddScoped<IFloodReportRepository, FloodReportRepository>();
 builder.Services.AddScoped<ISafetyGuideRepository, SafetyGuideRepository>();
 
-// --- Application services (Member 1's layer, wired here) ---
 builder.Services.AddScoped<IDistrictService, DistrictService>();
 builder.Services.AddScoped<IFloodReportService, FloodReportService>();
 builder.Services.AddScoped<ISafetyGuideService, SafetyGuideService>();
 builder.Services.AddSingleton<CreateFloodReportValidator>();
 
-// --- Auth: Supabase signs with an asymmetric ES256 key, not a shared secret.
-// Fetch the public JWKS once at startup and validate tokens against it. ---
-var jwksUrl = builder.Configuration["Supabase:JwksUrl"]
-    ?? throw new InvalidOperationException("Missing Supabase:JwksUrl in appsettings.json.");
-var issuer = builder.Configuration["Supabase:Issuer"]
-    ?? throw new InvalidOperationException("Missing Supabase:Issuer in appsettings.json.");
+// --- Auth Setup (Supabase Asymmetric JWT with JWKS validation & fallback) ---
+var jwksUrl = builder.Configuration["Supabase:JwksUrl"] ?? "https://apxnoqlkyuyyeilnsray.supabase.co/auth/v1/.well-known/jwks.json";
+var issuer = builder.Configuration["Supabase:Issuer"] ?? "https://apxnoqlkyuyyeilnsray.supabase.co/auth/v1";
 
-using (var httpClient = new HttpClient())
+SecurityKey[]? signingKeys = null;
+try
 {
+    using var httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
     var jwksJson = await httpClient.GetStringAsync(jwksUrl);
     var jwks = new JsonWebKeySet(jwksJson);
-
-    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(options =>
-        {
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKeys = jwks.Keys,
-                ValidateIssuer = true,
-                ValidIssuer = issuer,
-                ValidateAudience = true,
-                ValidAudience = "authenticated",
-                ValidateLifetime = true,
-                NameClaimType = "sub"
-            };
-        });
+    signingKeys = jwks.Keys.ToArray();
 }
+catch (Exception ex)
+{
+    Console.WriteLine($"[Warning] Could not fetch Supabase JWKS from {jwksUrl} at startup: {ex.Message}");
+}
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.Authority = issuer;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = signingKeys is { Length: > 0 },
+            IssuerSigningKeys = signingKeys,
+            ValidateIssuer = true,
+            ValidIssuer = issuer,
+            ValidateAudience = true,
+            ValidAudience = "authenticated",
+            ValidateLifetime = true,
+            NameClaimType = "sub"
+        };
+    });
 
 builder.Services.AddAuthorization();
 
-// --- CORS: allow the React dev server / deployed frontend origin ---
+// --- CORS Configuration ---
 const string CorsPolicy = "AllowFrontend";
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
     ?? ["http://localhost:5173"];
@@ -71,7 +86,7 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod());
 });
 
-// --- Controllers + Swagger (with a Bearer token box for testing auth) ---
+// --- Controllers & Swagger ---
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -99,6 +114,16 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
+// --- Seed Database ---
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await DbInitializer.SeedAsync(dbContext);
+}
+
+// --- Middleware Pipeline ---
+app.UseMiddleware<GlobalExceptionMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -113,3 +138,5 @@ app.MapControllers();
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 
 app.Run();
+
+public partial class Program { }

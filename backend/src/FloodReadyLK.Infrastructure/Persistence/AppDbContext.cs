@@ -32,6 +32,11 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             entity.Property(report => report.Severity).HasColumnName("severity").HasConversion<string>();
             entity.Property(report => report.Description).HasColumnName("description");
             entity.Property(report => report.CreatedAt).HasColumnName("created_at");
+
+            entity.HasOne(report => report.District)
+                .WithMany()
+                .HasForeignKey(report => report.DistrictId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<SafetyGuide>(entity =>
