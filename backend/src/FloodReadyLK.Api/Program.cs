@@ -1,13 +1,129 @@
+using FloodReadyLK.Api.Middleware;
+using FloodReadyLK.Application.Services;
+using FloodReadyLK.Application.Validators;
+using FloodReadyLK.Domain.Interfaces;
+using FloodReadyLK.Infrastructure.Persistence;
+using FloodReadyLK.Infrastructure.Persistence.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// --- Database Configuration (PostgreSQL / Supabase with InMemory Fallback) ---
+var connectionString = builder.Configuration.GetConnectionString("SupabaseDb");
+bool isPlaceholderDb = string.IsNullOrWhiteSpace(connectionString) || connectionString.Contains("YOUR_PROJECT_REF");
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    if (isPlaceholderDb)
+    {
+        options.UseInMemoryDatabase("FloodReadyLK_InMemoryDb");
+    }
+    else
+    {
+        options.UseNpgsql(connectionString);
+    }
+});
+
+// --- Repositories & Application Services ---
+builder.Services.AddScoped<IDistrictRepository, DistrictRepository>();
+builder.Services.AddScoped<IFloodReportRepository, FloodReportRepository>();
+builder.Services.AddScoped<ISafetyGuideRepository, SafetyGuideRepository>();
+
+builder.Services.AddScoped<IDistrictService, DistrictService>();
+builder.Services.AddScoped<IFloodReportService, FloodReportService>();
+builder.Services.AddScoped<ISafetyGuideService, SafetyGuideService>();
+builder.Services.AddSingleton<CreateFloodReportValidator>();
+
+// --- Auth Setup (Supabase Asymmetric JWT with JWKS validation & fallback) ---
+var jwksUrl = builder.Configuration["Supabase:JwksUrl"] ?? "https://apxnoqlkyuyyeilnsray.supabase.co/auth/v1/.well-known/jwks.json";
+var issuer = builder.Configuration["Supabase:Issuer"] ?? "https://apxnoqlkyuyyeilnsray.supabase.co/auth/v1";
+
+SecurityKey[]? signingKeys = null;
+try
+{
+    using var httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
+    var jwksJson = await httpClient.GetStringAsync(jwksUrl);
+    var jwks = new JsonWebKeySet(jwksJson);
+    signingKeys = jwks.Keys.ToArray();
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"[Warning] Could not fetch Supabase JWKS from {jwksUrl} at startup: {ex.Message}");
+}
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.Authority = issuer;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = signingKeys is { Length: > 0 },
+            IssuerSigningKeys = signingKeys,
+            ValidateIssuer = true,
+            ValidIssuer = issuer,
+            ValidateAudience = true,
+            ValidAudience = "authenticated",
+            ValidateLifetime = true,
+            NameClaimType = "sub"
+        };
+    });
+
+builder.Services.AddAuthorization();
+
+// --- CORS Configuration ---
+const string CorsPolicy = "AllowFrontend";
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? ["http://localhost:5173"];
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(CorsPolicy, policy =>
+        policy.WithOrigins(allowedOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
+
+// --- Controllers & Swagger ---
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "FloodReadyLK API", Version = "v1" });
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "Paste: Bearer {your Supabase access token}",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// --- Seed Database ---
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await DbInitializer.SeedAsync(dbContext);
+}
+
+// --- Middleware Pipeline ---
+app.UseMiddleware<GlobalExceptionMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -15,30 +131,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
+app.UseCors(CorsPolicy);
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
+app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+public partial class Program { }
