@@ -53,7 +53,7 @@ function DistrictSelect({ value, onChange }: DistrictSelectProps) {
 
   useEffect(() => {
     fetchApi<DistrictItem[]>('/api/districts')
-      .then((data) => {
+      .then((data: DistrictItem[]) => {
         if (data && Array.isArray(data) && data.length > 0) {
           setDistricts(data)
         }

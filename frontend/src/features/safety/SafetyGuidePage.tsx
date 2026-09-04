@@ -41,7 +41,7 @@ function SafetyGuidePage() {
 
   useEffect(() => {
     fetchApi<SafetyGuideItem[]>('/api/safety-guides')
-      .then((data) => {
+      .then((data: SafetyGuideItem[]) => {
         if (Array.isArray(data) && data.length > 0) {
           const grouped: Record<string, string[]> = { Before: [], During: [], After: [] }
           data.forEach((item) => {

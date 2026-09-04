@@ -74,3 +74,6 @@ export async function apiRequest<T = unknown>(
 
   return responseData as T
 }
+
+export const fetchApi = apiRequest
+

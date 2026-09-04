@@ -48,7 +48,7 @@ function useDistrictRisk() {
     try {
       const districts = await fetchApi<DistrictItem[]>('/api/districts')
       const found = districts.find(
-        (d) => d.name.toLowerCase() === districtName.toLowerCase()
+        (d: DistrictItem) => d.name.toLowerCase() === districtName.toLowerCase()
       )
 
       if (found) {
