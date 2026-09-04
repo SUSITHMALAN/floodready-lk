@@ -16,7 +16,8 @@ export function LoginPage() {
   const [formError, setFormError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  if (!sessionLoading && session) return <Navigate to="/" replace />
+  if (sessionLoading) return null
+  if (session) return <Navigate to="/" replace />
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()

@@ -59,7 +59,8 @@ export async function apiRequest<T = unknown>(
 
   const headers = new Headers(options.headers)
   if (!headers.has('Accept')) headers.set('Accept', 'application/json')
-  if (!headers.has('Content-Type')) headers.set('Content-Type', 'application/json')
+  const hasBody = options.body !== undefined && options.body !== null
+  if (hasBody && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json')
 
   const accessToken = data.session?.access_token
   if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`)
