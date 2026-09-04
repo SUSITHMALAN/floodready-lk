@@ -121,12 +121,12 @@
 
 // export default App
 
-import ReportsDashboardPage from './pages/ReportsDashboardPage'
+import SafetyGuidePage from './pages/SafetyGuidePage'
 import './App.css'
 
 function App() {
   return (
-    <ReportsDashboardPage />
+    <SafetyGuidePage />
   )
 }
 
