@@ -11,3 +11,6 @@
 html { min-width: 320px; background: #f7faf8; }
 body { min-width: 320px; min-height: 100vh; margin: 0; }
 button, input { font: inherit; }
+*, *::before, *::after { box-sizing: border-box; }
+select, textarea { font: inherit; }
+#root { min-height: 100vh; }
