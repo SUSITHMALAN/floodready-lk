@@ -22,7 +22,6 @@
 .field input[aria-invalid='true'] { border-color: #c94a4a; }
 .field-error, .field-help { margin: 6px 0 0; font-size: 13px; line-height: 1.4; }
 .field-error { color: #b33131; }
-}
 
 .feature-nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
 .feature-nav a { padding: 11px 16px; color: #fff; background: #087d70; border-radius: 9px; font-weight: 700; text-decoration: none; }
@@ -37,7 +36,6 @@ main:not(.home-page) textarea { min-height: 100px; }
 main:not(.home-page) button { padding: 10px 16px; border: none; border-radius: 5px; cursor: pointer; color: #fff; background: #087d70; }
 main:not(.home-page) button:disabled { background: #aaa; cursor: not-allowed; }
 main:not(.home-page) li { margin-bottom: 10px; }
-}
 
 textarea {
   min-height: 100px;
