@@ -1,20 +1,5 @@
-import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Search, RefreshCw, FilterX, Loader2 } from 'lucide-react'
 import { useState } from 'react'
+import { Search, RefreshCw, FilterX, Loader2, FileText, AlertTriangle } from 'lucide-react'
 import ReportCard from './ReportCard'
 import useReports from './useReports'
 import { fallbackDistricts } from '../risk/DistrictSelect'
@@ -52,128 +37,117 @@ function ReportsDashboardPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            Community Flood Reports
-          </h1>
-
-          <p className="mt-1 text-muted-foreground">
-            Live crowd-sourced flood reports across Sri Lanka.
-          </p>
-        </div>
-
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => refetch()}
-          disabled={loading}
-          className="self-start sm:self-auto"
-        >
-          <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-          Refresh
-        </Button>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Search & Filter Reports</CardTitle>
-        </CardHeader>
-
-        <CardContent className="space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search by location, district, or keyword..."
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              className="pl-9"
-            />
+    <div className="min-h-screen bg-slate-50/70 py-10 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto space-y-6">
+        {/* Page Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-sky-100 text-sky-800 text-xs font-bold uppercase tracking-wider">
+              <FileText className="w-4 h-4 text-sky-700" />
+              Community Updates
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+              Live Community Reports
+            </h1>
+            <p className="text-slate-600 text-sm sm:text-base">
+              Explore crowdsourced flood reports, water levels, and road conditions across Sri Lanka.
+            </p>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Select
+          <button
+            onClick={() => refetch()}
+            disabled={loading}
+            className="self-start md:self-auto flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 shadow-sm transition-all cursor-pointer"
+          >
+            <RefreshCw className={`w-4 h-4 text-teal-600 ${loading ? 'animate-spin' : ''}`} />
+            Refresh Feed
+          </button>
+        </div>
+
+        {/* Filter Card */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-md p-6 space-y-4">
+          <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Filter Incident Feed</h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Search Input */}
+            <div className="relative">
+              <Search className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search location, district..."
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                className="w-full h-11 pl-10 pr-4 rounded-xl border border-slate-300 bg-white text-slate-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
+              />
+            </div>
+
+            {/* District Select */}
+            <select
               value={district}
-              onValueChange={(value: string | null) => setDistrict(value === 'ALL' ? '' : (value ?? ''))}
+              onChange={(e) => setDistrict(e.target.value === 'ALL' ? '' : e.target.value)}
+              className="w-full h-11 px-4 rounded-xl border border-slate-300 bg-white text-slate-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
             >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="All Districts" />
-              </SelectTrigger>
+              <option value="ALL">All Districts</option>
+              {fallbackDistricts.map((d) => (
+                <option key={d.id} value={d.name}>
+                  {d.name}
+                </option>
+              ))}
+            </select>
 
-              <SelectContent>
-                <SelectItem value="ALL">All Districts</SelectItem>
-                {fallbackDistricts.map((d) => (
-                  <SelectItem key={d.id} value={d.name}>
-                    {d.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select
+            {/* Severity Select */}
+            <select
               value={severity}
-              onValueChange={(value: string | null) => setSeverity(value === 'ALL' ? '' : (value ?? ''))}
+              onChange={(e) => setSeverity(e.target.value === 'ALL' ? '' : e.target.value)}
+              className="w-full h-11 px-4 rounded-xl border border-slate-300 bg-white text-slate-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
             >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="All Severities" />
-              </SelectTrigger>
-
-              <SelectContent>
-                <SelectItem value="ALL">All Severities</SelectItem>
-                <SelectItem value="Minor">Minor</SelectItem>
-                <SelectItem value="Moderate">Moderate</SelectItem>
-                <SelectItem value="Severe">Severe</SelectItem>
-              </SelectContent>
-            </Select>
+              <option value="ALL">All Severity Levels</option>
+              <option value="Minor">Minor</option>
+              <option value="Moderate">Moderate</option>
+              <option value="Severe">Severe</option>
+            </select>
           </div>
 
           {(search || district || severity) && (
-            <Button
+            <button
               type="button"
-              variant="ghost"
-              size="sm"
               onClick={clearFilters}
-              className="text-xs text-muted-foreground hover:text-foreground"
+              className="flex items-center gap-1 text-xs text-rose-600 font-semibold hover:underline cursor-pointer pt-1"
             >
-              <FilterX className="mr-1.5 h-3.5 w-3.5" />
+              <FilterX className="w-3.5 h-3.5" />
               Clear Active Filters
-            </Button>
-          )}
-        </CardContent>
-      </Card>
-
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">
-            Active Reports ({filteredReports.length})
-          </h2>
-
-          {loading && (
-            <span className="flex items-center text-xs text-muted-foreground">
-              <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />
-              Updating...
-            </span>
+            </button>
           )}
         </div>
 
-        {filteredReports.length > 0 ? (
-          <div className="grid gap-4 md:grid-cols-2">
-            {filteredReports.map((report) => (
-              <ReportCard
-                key={report.id}
-                report={report}
-              />
-            ))}
+        {/* Reports Feed */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-bold text-slate-900">
+              Active Reports ({filteredReports.length})
+            </h3>
+            {loading && (
+              <span className="flex items-center gap-1.5 text-xs font-semibold text-teal-700">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                Fetching updates...
+              </span>
+            )}
           </div>
-        ) : (
-          <Card>
-            <CardContent className="pt-6 text-center text-muted-foreground">
-              No flood reports matched your search criteria.
-            </CardContent>
-          </Card>
-        )}
+
+          {filteredReports.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {filteredReports.map((report) => (
+                <ReportCard key={report.id} report={report} />
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl border border-slate-200 p-10 text-center space-y-2">
+              <AlertTriangle className="w-8 h-8 text-amber-500 mx-auto" />
+              <p className="font-bold text-slate-800">No reports matched your filters.</p>
+              <p className="text-xs text-slate-500">Try clearing filters or search terms.</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

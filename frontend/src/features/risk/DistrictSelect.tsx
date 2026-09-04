@@ -1,12 +1,6 @@
 import { useEffect, useState } from 'react'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { fetchApi } from '@/lib/apiClient'
+import { MapPin } from 'lucide-react'
 
 type DistrictSelectProps = {
   value: string
@@ -64,27 +58,34 @@ function DistrictSelect({ value, onChange }: DistrictSelectProps) {
   }, [])
 
   return (
-    <div className="space-y-2">
-      <label htmlFor="district" className="text-sm font-medium">
-        Select District
+    <div className="space-y-1.5">
+      <label htmlFor="district" className="block text-sm font-semibold text-slate-800 flex items-center gap-1.5">
+        <MapPin className="w-4 h-4 text-teal-600" />
+        Select Affected District <span className="text-rose-500">*</span>
       </label>
 
-      <Select
-        value={value}
-        onValueChange={(newValue: string | null) => onChange(newValue ?? '')}
-      >
-        <SelectTrigger id="district" className="w-full">
-          <SelectValue placeholder="Choose a district" />
-        </SelectTrigger>
-
-        <SelectContent>
+      <div className="relative">
+        <select
+          id="district"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full h-12 px-4 rounded-xl border border-slate-300 bg-white text-slate-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent shadow-sm transition-all appearance-none cursor-pointer pr-10"
+        >
+          <option value="" disabled>
+            -- Choose a district --
+          </option>
           {districts.map((district) => (
-            <SelectItem key={district.id || district.name} value={district.name}>
-              {district.name}
-            </SelectItem>
+            <option key={district.id || district.name} value={district.name}>
+              {district.name} {district.riskLevel ? `(${district.riskLevel} Risk)` : ''}
+            </option>
           ))}
-        </SelectContent>
-      </Select>
+        </select>
+        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500">
+          <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+            <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+          </svg>
+        </div>
+      </div>
     </div>
   )
 }
