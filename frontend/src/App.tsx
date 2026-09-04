@@ -121,12 +121,12 @@
 
 // export default App
 
-import RiskCheckerPage from './pages/RiskCheckerPage'
+import ReportFormPage from './pages/ReportFormPage'
 import './App.css'
 
 function App() {
   return (
-    <RiskCheckerPage />
+    <ReportFormPage />
   )
 }
 
