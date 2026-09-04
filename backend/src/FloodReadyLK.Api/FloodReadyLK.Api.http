@@ -1,0 +1,6 @@
+@FloodReadyLK.Api_HostAddress = http://localhost:5015
+
+GET {{FloodReadyLK.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

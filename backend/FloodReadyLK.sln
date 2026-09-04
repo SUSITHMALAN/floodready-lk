@@ -1,0 +1,48 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{EF3D8668-1349-49D4-86F0-9E53CB0057EC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FloodReadyLK.Domain", "src\FloodReadyLK.Domain\FloodReadyLK.Domain.csproj", "{D073E3E2-A751-4C68-BC88-4AF06A0DA743}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FloodReadyLK.Application", "src\FloodReadyLK.Application\FloodReadyLK.Application.csproj", "{0D1DDE78-F16F-4930-96AF-41D8095FAFAC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FloodReadyLK.Infrastructure", "src\FloodReadyLK.Infrastructure\FloodReadyLK.Infrastructure.csproj", "{67A4E02D-A8AC-4141-80EE-92B9F3E1C376}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FloodReadyLK.Api", "src\FloodReadyLK.Api\FloodReadyLK.Api.csproj", "{A7AC8F95-DC92-4620-8241-A96B5B4F1825}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D073E3E2-A751-4C68-BC88-4AF06A0DA743}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D073E3E2-A751-4C68-BC88-4AF06A0DA743}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D073E3E2-A751-4C68-BC88-4AF06A0DA743}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D073E3E2-A751-4C68-BC88-4AF06A0DA743}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D1DDE78-F16F-4930-96AF-41D8095FAFAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D1DDE78-F16F-4930-96AF-41D8095FAFAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D1DDE78-F16F-4930-96AF-41D8095FAFAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D1DDE78-F16F-4930-96AF-41D8095FAFAC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67A4E02D-A8AC-4141-80EE-92B9F3E1C376}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67A4E02D-A8AC-4141-80EE-92B9F3E1C376}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67A4E02D-A8AC-4141-80EE-92B9F3E1C376}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67A4E02D-A8AC-4141-80EE-92B9F3E1C376}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7AC8F95-DC92-4620-8241-A96B5B4F1825}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7AC8F95-DC92-4620-8241-A96B5B4F1825}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7AC8F95-DC92-4620-8241-A96B5B4F1825}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7AC8F95-DC92-4620-8241-A96B5B4F1825}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D073E3E2-A751-4C68-BC88-4AF06A0DA743} = {EF3D8668-1349-49D4-86F0-9E53CB0057EC}
+		{0D1DDE78-F16F-4930-96AF-41D8095FAFAC} = {EF3D8668-1349-49D4-86F0-9E53CB0057EC}
+		{67A4E02D-A8AC-4141-80EE-92B9F3E1C376} = {EF3D8668-1349-49D4-86F0-9E53CB0057EC}
+		{A7AC8F95-DC92-4620-8241-A96B5B4F1825} = {EF3D8668-1349-49D4-86F0-9E53CB0057EC}
+	EndGlobalSection
+EndGlobal
