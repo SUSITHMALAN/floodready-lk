@@ -14,7 +14,10 @@ public interface IFloodReportRepository
         int? districtId = null,
         ReportSeverity? severity = null,
         CancellationToken cancellationToken = default);
+    Task<FloodReport?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<FloodReport>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
     Task<FloodReport> AddAsync(FloodReport report, CancellationToken cancellationToken = default);
+    Task<bool> DeleteAsync(Guid id, Guid userId, CancellationToken cancellationToken = default);
 }
 
 public interface ISafetyGuideRepository
