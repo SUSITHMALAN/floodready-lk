@@ -121,12 +121,12 @@
 
 // export default App
 
-import ReportFormPage from './pages/ReportFormPage'
+import ReportsDashboardPage from './pages/ReportsDashboardPage'
 import './App.css'
 
 function App() {
   return (
-    <ReportFormPage />
+    <ReportsDashboardPage />
   )
 }
 
