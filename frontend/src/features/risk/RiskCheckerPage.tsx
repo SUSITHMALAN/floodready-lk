@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import DistrictSelect from '../components/DistrictSelect'
-import useDistrictRisk from '../hooks/useDistrictRisk'
+import DistrictSelect from './DistrictSelect'
+import useDistrictRisk from './useDistrictRisk'
 
 function RiskCheckerPage() {
   const [district, setDistrict] = useState('')

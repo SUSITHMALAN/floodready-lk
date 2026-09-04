@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import ReportCard from '../components/ReportCard'
-import useReports from '../hooks/useReports'
+import ReportCard from './ReportCard'
+import useReports from './useReports'
 
 function ReportsDashboardPage() {
   const { reports } = useReports()

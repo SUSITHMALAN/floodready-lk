@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import RiskCheckerPage from './pages/RiskCheckerPage'
-import ReportFormPage from './pages/ReportFormPage'
-import ReportsDashboardPage from './pages/ReportsDashboardPage'
-import SafetyGuidePage from './pages/SafetyGuidePage'
+import RiskCheckerPage from './features/risk/RiskCheckerPage'
+import ReportFormPage from './features/reports/ReportFormPage'
+import ReportsDashboardPage from './features/reports/ReportsDashboardPage'
+import SafetyGuidePage from './features/safety/SafetyGuidePage'
 import './App.css'
 
 function App() {

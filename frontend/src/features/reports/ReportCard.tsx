@@ -1,4 +1,4 @@
-import type { Report } from '../hooks/useReports'
+import type { Report } from './useReports'
 
 type ReportCardProps = {
   report: Report
