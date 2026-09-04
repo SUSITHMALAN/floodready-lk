@@ -1,4 +1,14 @@
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
 import { useState } from 'react'
+import DistrictSelect from '../risk/DistrictSelect'
 
 function ReportFormPage() {
   const [district, setDistrict] = useState('')
@@ -22,55 +32,77 @@ function ReportFormPage() {
   }
 
   return (
-    <div>
-      <h1>Report a Flood</h1>
+    <div className="mx-auto max-w-2xl space-y-6 p-4 sm:p-6">
+      <div className="text-center">
+        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+          Report a Flood
+        </h1>
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="district">District</label>
+        <p className="mt-2 text-muted-foreground">
+          Submit information about flooding in your area.
+        </p>
+      </div>
 
-          <input
-            id="district"
-            type="text"
-            value={district}
-            onChange={(event) => setDistrict(event.target.value)}
-            placeholder="Enter your district"
-          />
-        </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Flood Report</CardTitle>
+        </CardHeader>
 
-        <div>
-          <label htmlFor="severity">Severity</label>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <DistrictSelect
+              value={district}
+              onChange={setDistrict}
+            />
 
-          <select
-            id="severity"
-            value={severity}
-            onChange={(event) => setSeverity(event.target.value)}
-          >
-            <option value="">Select severity</option>
-            <option value="Low">Low</option>
-            <option value="Moderate">Moderate</option>
-            <option value="High">High</option>
-            <option value="Critical">Critical</option>
-          </select>
-        </div>
+            <div className="space-y-2">
+              <label htmlFor="severity" className="text-sm font-medium">
+                Severity
+              </label>
 
-        <div>
-          <label htmlFor="description">Description</label>
+              <Select
+                value={severity}
+                onValueChange={(value) => setSeverity(value ?? '')}
+              >
+                <SelectTrigger id="severity" className="w-full">
+                  <SelectValue placeholder="Select severity" />
+                </SelectTrigger>
 
-          <textarea
-            id="description"
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-            placeholder="Describe the situation"
-          />
-        </div>
+                <SelectContent>
+                  <SelectItem value="Low">Low</SelectItem>
+                  <SelectItem value="Moderate">Moderate</SelectItem>
+                  <SelectItem value="High">High</SelectItem>
+                  <SelectItem value="Critical">Critical</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-        <button type="submit">
-          Submit Report
-        </button>
-      </form>
+            <div className="space-y-2">
+              <label htmlFor="description" className="text-sm font-medium">
+                Description
+              </label>
 
-      {message && <p>{message}</p>}
+              <Textarea
+                id="description"
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+                placeholder="Describe the flooding situation"
+                rows={5}
+              />
+            </div>
+
+            <Button type="submit" className="w-full">
+              Submit Report
+            </Button>
+
+            {message && (
+              <p className="rounded-md bg-muted p-3 text-center text-sm">
+                {message}
+              </p>
+            )}
+          </form>
+        </CardContent>
+      </Card>
     </div>
   )
 }

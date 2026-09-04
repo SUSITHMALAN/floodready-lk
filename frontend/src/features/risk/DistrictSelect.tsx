@@ -1,3 +1,11 @@
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+
 type DistrictSelectProps = {
   value: string
   onChange: (value: string) => void
@@ -18,22 +26,27 @@ const districts = [
 
 function DistrictSelect({ value, onChange }: DistrictSelectProps) {
   return (
-    <div>
-      <label htmlFor="district">Select District</label>
+    <div className="space-y-2">
+      <label htmlFor="district" className="text-sm font-medium">
+        Select District
+      </label>
 
-      <select
-        id="district"
+      <Select
         value={value}
-        onChange={(event) => onChange(event.target.value)}
+        onValueChange={(newValue) => onChange(newValue ?? '')}
       >
-        <option value="">Choose a district</option>
+        <SelectTrigger id="district" className="w-full">
+          <SelectValue placeholder="Choose a district" />
+        </SelectTrigger>
 
-        {districts.map((district) => (
-          <option key={district} value={district}>
-            {district}
-          </option>
-        ))}
-      </select>
+        <SelectContent>
+          {districts.map((district) => (
+            <SelectItem key={district} value={district}>
+              {district}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   )
 }
